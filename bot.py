@@ -255,7 +255,7 @@ async def search_google(ctx, query, num_links=5):
     await ctx.send(embed=embed)
 
 @bot.command(
-    brief="Retorna um número aleatório entre dois números.",
+    brief="Retorna um número aleatório entre 1 e 100 ou 1 e um número escolhido.",
     description="""
         `roll`: Retorna um número aleatório entre 1 e 100.
         `roll [número limite]`: Retorna um número aleatório entre 1 e o número de escolha do usuário.
