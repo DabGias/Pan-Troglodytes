@@ -46,35 +46,33 @@ async def ping(ctx):
     """
 )
 async def bot_help(ctx, comm=None):
-    if comm:
-        embed = None
+    embed = None
+    
+    if comm is not None:
+        for c in bot.walk_commands():
+            if c.name == comm:
+                embed = Embed(
+                    title="`{}`".format(c.name),
+                    colour=Colour.yellow(),
+                    timestamp=datetime.datetime.now(),
+                )
 
-    for c in bot.walk_commands():
-        if c.name == comm:
-            embed = Embed(
-                title="`{}`".format(c.name),
-                colour=Colour.yellow(),
-                timestamp=datetime.datetime.now(),
-            )
+                embed.add_field(
+                    name="",
+                    value="{}".format(c.description),
+                    inline=False
+                )
+
+                break
+
+        if embed is None:
+            embed = Embed(colour=Colour.red())
 
             embed.add_field(
                 name="",
-                value="{}".format(c.description),
+                value="**:x: O comando informado não existe!**",
                 inline=False
             )
-
-            break
-
-    if embed is None:
-        embed = Embed(colour=Colour.red())
-
-        embed.add_field(
-            name="",
-            value="**:x: O comando informado não existe!**",
-            inline=False
-        )
-
-        await ctx.send(embed=embed)
     else:
         embed = Embed(
             title="{}, aqui está a lista de comandos: ".format(
@@ -93,7 +91,7 @@ async def bot_help(ctx, comm=None):
             inline=False
         )
 
-        await ctx.send(embed=embed)
+    await ctx.send(embed=embed)
 
 @bot.command(
     name="userinfo",
