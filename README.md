@@ -1,4 +1,4 @@
-# *Pan Troglodytes*
+<h1><b>Pan Trogodites</b></h1>
 
 ## Um bot de Discord feito em Python:3.9 🐍
 
