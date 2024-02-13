@@ -49,23 +49,21 @@ async def bot_help(ctx, comm=None):
     embed = None
     
     if comm is not None:
-        for c in bot.walk_commands():
-            if c.name == comm:
-                embed = Embed(
-                    title="`{}`".format(c.name),
-                    colour=Colour.yellow(),
-                    timestamp=datetime.datetime.now(),
-                )
+        c = bot.get_command(comm)
 
-                embed.add_field(
-                    name="",
-                    value="{}".format(c.description),
-                    inline=False
-                )
+        if c is not None:
+            embed = Embed(
+                title="`{}`".format(c.name),
+                colour=Colour.yellow(),
+                timestamp=datetime.datetime.now(),
+            )
 
-                break
-
-        if embed is None:
+            embed.add_field(
+                name="",
+                value="{}".format(c.description),
+                inline=False
+            )
+        else:
             embed = Embed(colour=Colour.red())
 
             embed.add_field(
@@ -76,18 +74,19 @@ async def bot_help(ctx, comm=None):
     else:
         embed = Embed(
             title="{}, aqui está a lista de comandos: ".format(
-            ctx.author.nick if ctx.author.nick else ctx.author.name),
+                ctx.author.nick if ctx.author.nick else ctx.author.name
+            ),
             colour=Colour.yellow(),
         )
 
-        comm_desc = ""
+        comms_desc = ""
 
         for c in bot.walk_commands():
-            comm_desc += "`{}` - {}\n".format(c.name, c.brief)
+            comms_desc += "`{}` - {}\n".format(c.name, c.brief)
 
         embed.add_field(
-            name="Comandos: ", 
-            value=comm_desc, 
+            name="",
+            value=comms_desc, 
             inline=False
         )
 
@@ -101,7 +100,7 @@ async def bot_help(ctx, comm=None):
         `userinfo @[nome/nick]`: Retorna as informações de um usuário em específico.
     """
 )
-async def user_info(ctx, member: Member = None):
+async def user_info(ctx, member: Member=None):
     if member:
         target = member
     else:
@@ -131,8 +130,7 @@ async def user_info(ctx, member: Member = None):
     )
     embed.add_field(
         name="Atividade: ",
-        value="{} {}".format(str(target.activity.type).split(".")[-1].title(), target.activity.name)
-        if target.activity else "{} não está em nenhuma atividade no momento!".format(target.nick if target.nick else target.name),
+        value="{} {}".format(str(target.activity.type).split(".")[-1].title(), target.activity.name) if target.activity else "{} não está em nenhuma atividade no momento!".format(target.nick if target.nick else target.name),
         inline=False
     )
 
@@ -182,13 +180,14 @@ async def server_info(ctx):
     embed.add_field(
         name="Status: ",
         value="""
-        :green_circle: {} 
-            
-        :yellow_circle: {} 
+            :green_circle: {} 
                 
-        :red_circle: {} 
-                
-        :black_circle: {}""".format(
+            :yellow_circle: {} 
+                    
+            :red_circle: {} 
+                    
+            :black_circle: {}
+        """.format(
             status[0], 
             status[1], 
             status[2], 
