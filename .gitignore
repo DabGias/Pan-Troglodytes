@@ -1,2 +1,5 @@
+__pycache__/
 *.env
 *.google-cookie
+*.idea
+*.venv
