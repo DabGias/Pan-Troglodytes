@@ -139,7 +139,7 @@ async def user_info(ctx, member: Member | None = None):
     )
     embed.add_field(
         name="Atividade: ",
-        value=f"{str(target.activity.type).split(".")[-1].title()} {target.activity.name}" if target.activity else f"{target.nick if target.nick else target.name} não está em nenhuma atividade no momento!",
+        value=f"{str(target.activity.type).split('.')[-1].title()} {target.activity.name}" if target.activity else f"{target.nick if target.nick else target.name} não está em nenhuma atividade no momento!",
         inline=False
     )
 
