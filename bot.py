@@ -1,11 +1,20 @@
+from discord.ext import commands
+from discord.ext.commands import Bot
+from discord import (
+    Embed, 
+    Member, 
+    Intents, 
+    Colour, 
+    Activity, 
+    ActivityType,
+)
+
+from googlesearch import search
 import datetime
 import random
-from googlesearch import search
 
-from discord.ext import commands
-from discord import Embed, Member, Intents, Colour, Activity, ActivityType
 
-bot = commands.Bot(
+bot: Bot = commands.Bot(
     command_prefix=["m, ", "macaco, "],
     intents=Intents.all(),
     help_command=None
@@ -17,25 +26,27 @@ async def on_ready():
         activity=Activity(type=ActivityType.listening, name="m, help")
     )
 
-    print(f'Loged as {bot.user} (ID: {bot.user.id})')
+    print(f'Logado como {bot.user} (ID: {bot.user.id if bot.user is not None else bot.user})')
+
 
 @bot.command(
     brief="Retorna ping.", 
     description="Retorna o ping do bot."
 )
 async def ping(ctx):
-    embed = Embed(colour=Colour.green())
+    embed: Embed = Embed(colour=Colour.green())
 
     embed.add_field(
         name="",
-        value="""
+        value=f"""
             Pong! 
-            Latência: **{}ms**
-        """.format(round(bot.latency * 1000)),
+            Latência: **{round(bot.latency * 1000)}ms**
+        """,
         inline=False
     )
 
     await ctx.send(embed=embed)
+
 
 @bot.command(
     name="help",
@@ -45,15 +56,15 @@ async def ping(ctx):
         `help [comando]`: Retorna a descrição de um comando em específico.
     """
 )
-async def bot_help(ctx, comm=None):
-    embed = None
+async def bot_help(ctx, comm: str | None = None):
+    embed: Embed
     
     if comm is not None:
         c = bot.get_command(comm)
 
         if c is not None:
             embed = Embed(
-                title="`{}`".format(c.name),
+                title=f"`{c.name}`",
                 colour=Colour.yellow(),
                 timestamp=datetime.datetime.now(),
             )
@@ -73,16 +84,14 @@ async def bot_help(ctx, comm=None):
             )
     else:
         embed = Embed(
-            title="{}, aqui está a lista de comandos: ".format(
-                ctx.author.nick if ctx.author.nick else ctx.author.name
-            ),
+            title=f"{ctx.author.nick if ctx.author.nick else ctx.author.name}, aqui está a lista de comandos: ",
             colour=Colour.yellow(),
         )
 
-        comms_desc = ""
+        comms_desc: str = ""
 
         for c in bot.walk_commands():
-            comms_desc += "`{}` - {}\n".format(c.name, c.brief)
+            comms_desc += f"`{c.name}` - {c.brief}\n"
 
         embed.add_field(
             name="",
@@ -92,6 +101,7 @@ async def bot_help(ctx, comm=None):
 
     await ctx.send(embed=embed)
 
+
 @bot.command(
     name="userinfo",
     brief="Retorna informação de um usuário em específico.",
@@ -100,14 +110,14 @@ async def bot_help(ctx, comm=None):
         `userinfo @[nome/nick]`: Retorna as informações de um usuário em específico.
     """
 )
-async def user_info(ctx, member: Member=None):
+async def user_info(ctx, member: Member | None = None):
     if member:
-        target = member
+        target: Member = member
     else:
-        target = ctx.author
+        target: Member = ctx.author
 
-    embed = Embed(
-        title="Informações de {}".format(target.name),
+    embed: Embed = Embed(
+        title=f"Informações de {target.name}",
         colour=target.colour,
     )
 
@@ -124,17 +134,17 @@ async def user_info(ctx, member: Member=None):
     )
     embed.add_field(
         name="Status: ",
-        value=str(target.status).title()
-        if str(target.status) != "dnd" else "Não pertube",
+        value=str(target.status).title() if str(target.status) != "dnd" else "Não pertube",
         inline=False
     )
     embed.add_field(
         name="Atividade: ",
-        value="{} {}".format(str(target.activity.type).split(".")[-1].title(), target.activity.name) if target.activity else "{} não está em nenhuma atividade no momento!".format(target.nick if target.nick else target.name),
+        value=f"{str(target.activity.type).split(".")[-1].title()} {target.activity.name}" if target.activity else f"{target.nick if target.nick else target.name} não está em nenhuma atividade no momento!",
         inline=False
     )
 
     await ctx.send(embed=embed)
+
 
 @bot.command(
     name="serverinfo",
@@ -179,24 +189,20 @@ async def server_info(ctx):
     )
     embed.add_field(
         name="Status: ",
-        value="""
-            :green_circle: {} 
+        value=f"""
+            :green_circle: {status[0]} 
                 
-            :yellow_circle: {} 
+            :yellow_circle: {status[1]} 
                     
-            :red_circle: {} 
+            :red_circle: {status[2]} 
                     
-            :black_circle: {}
-        """.format(
-            status[0], 
-            status[1], 
-            status[2], 
-            status[3]
-        ),
+            :black_circle: {status[3]}
+        """,
         inline=False
     )
 
     await ctx.send(embed=embed)
+
 
 @bot.command(
     name="members",
@@ -210,11 +216,12 @@ async def all_members(ctx):
 
     embed.add_field(
         name="",
-        value="O número de membros em {} é de: {}".format(ctx.guild.name, len(ctx.guild.members)),
+        value=f"O número de membros em {ctx.guild.name} é de: {len(ctx.guild.members)}",
         inline=False
     )
 
     await ctx.send(embed=embed)
+
 
 @bot.command(
     name="search",
@@ -225,20 +232,18 @@ async def all_members(ctx):
         `search "[pesquisa]" [número de links]`: Caso sua pesquisa seja mais longa que uma palavra digite ela entre aspas.
     """
 )
-async def search_google(ctx, query, num_links=5):
-    embed = Embed()
+async def search_google(ctx, query: str, num_links: int = 5):
+    embed: Embed = Embed()
 
     if 20 >= num_links > 0:
-        embed.title = "{}, aqui estão os links relacionados com '{}': ".format(
-            ctx.author.nick if ctx.author.nick else ctx.author.name, query
-        )
+        embed.title = f"{ctx.author.nick if ctx.author.nick else ctx.author.name}, aqui estão os links relacionados com '{query}': "
         embed.colour = Colour.green()
 
-        links = [x for x in search(query, safe="on", num=num_links, stop=num_links)]
+        links = [x for x in search(query, safe="on", num_results=num_links)]
 
         for i, link in enumerate(links):
             embed.add_field(
-                name="**{}.** {}".format(i + 1, link),
+                name=f"**{i + 1}.** {link}",
                 value="",
                 inline=False
             )
@@ -253,6 +258,7 @@ async def search_google(ctx, query, num_links=5):
 
     await ctx.send(embed=embed)
 
+
 @bot.command(
     brief="Retorna um número aleatório entre 1 e 100 ou 1 e um número escolhido.",
     description="""
@@ -260,15 +266,15 @@ async def search_google(ctx, query, num_links=5):
         `roll [número limite]`: Retorna um número aleatório entre 1 e o número de escolha do usuário.
     """
 )
-async def roll(ctx, max_num=100):
-    embed = Embed()
+async def roll(ctx, max_num: int = 100):
+    embed: Embed = Embed()
 
     if max_num > 1:
         embed.colour = Colour.green()
 
         embed.add_field(
             name="",
-            value="Número escolhido: {}".format(random.randint(1, max_num + 1)),
+            value=f"Número escolhido: {random.randint(1, max_num + 1)}",
             inline=False
         )
     else:
@@ -281,6 +287,7 @@ async def roll(ctx, max_num=100):
         )
 
     await ctx.send(embed=embed)
+    
 
 @bot.command(
     brief="Retorna uma escolha aleatória.",
@@ -289,11 +296,11 @@ async def roll(ctx, max_num=100):
     """
 )
 async def choose(ctx, *choices):
-    embed = Embed(colour=Colour.green())
+    embed: Embed = Embed(colour=Colour.green())
 
     embed.add_field(
         name="",
-        value="A minha escolha foi: **{}**".format(random.choice(choices)),
+        value=f"A minha escolha foi: **{random.choice(choices)}**",
         inline=False
     )
 
